@@ -18,7 +18,7 @@ Local dev: `npm run db:init:local` once, then `npm run dev`. `.dev.vars` holds l
 
 - **No sign-in.** One tap to vote. Identity is a random id in a signed HttpOnly cookie (`sl_v`). Protection: Cloudflare Turnstile (invisible) on every vote, plus `IP_DAILY_CAP` (20) new voters per network per day. IPs are only stored as an HMAC and deleted after a day.
 - **One vote, movable.** `SWITCH_COOLDOWN_MIN` = 60 minutes between moves.
-- **Results unlock at `REVEAL_AT` (100) votes.** Before that, percentages are sealed and a progress bar shows.
+- **Results show from the first vote** (`REVEAL_AT` = 0), labelled "Early results" until 100 votes. Raising `REVEAL_AT` brings back the sealed state and progress bar.
 - **Never seed fake votes.** It's an anti-slop index; faking numbers would destroy it.
 - **No browser fingerprinting** for now (consent/privacy issues). If gaming becomes a problem, the next step is optional "verify with Google" plus a verified-only view.
 - **Cheap reads.** `/api/standings` is edge-cached 60s; running totals live in `tallies`; the hourly cron recounts from `votes` and appends a snapshot to a 15-day history (one JSON row in `meta`).

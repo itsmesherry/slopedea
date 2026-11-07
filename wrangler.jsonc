@@ -33,8 +33,9 @@
   "vars": {
     // Public Turnstile site key (Cloudflare dashboard → Turnstile). Leave empty to skip the bot check.
     "TURNSTILE_SITE_KEY": "0x4AAAAAAF3lDY8nsh4dOaJC",
-    // Percentages stay hidden until this many votes are in. Set to "0" to always show.
-    "REVEAL_AT": "100",
+    // Percentages stay hidden until this many votes are in. "0" shows them from the first vote
+    // (the page labels them "Early results" until 100).
+    "REVEAL_AT": "0",
     // Minutes a person must wait before moving their vote again.
     "SWITCH_COOLDOWN_MIN": "60",
     // Max new voters per network (IP) per day. High enough for shared mobile and office networks.

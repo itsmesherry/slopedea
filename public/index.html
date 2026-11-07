@@ -615,7 +615,8 @@ function render() {
     $("#unlockText").textContent = `${S.total.toLocaleString()} of ${need.toLocaleString()} votes in. Standings go public at ${need.toLocaleString()}.`;
   } else {
     unlock.hidden = true;
-    $("#heroLabel").textContent = "Sloppiest platform right now";
+    // ponytail: fixed 100, make it a var if the early phase ever needs tuning
+    $("#heroLabel").textContent = S && S.total < 100 ? `Early results, ${S.total.toLocaleString()} ${S.total === 1 ? "vote" : "votes"} so far` : "Sloppiest platform right now";
     if (!cur.n) {
       $("#heroName").textContent = S ? "No votes yet" : (loadError ? "Polls are open" : "Counting…");
       $("#heroShare").innerHTML = "";

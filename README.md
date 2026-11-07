@@ -40,7 +40,7 @@ wrangler.jsonc      Cloudflare config
 - **No sign-up.** One tap and the vote counts. Each voter gets a random id in a signed cookie, and their vote lives in one row. Moving it updates that row.
 - **Abuse protection.** Cloudflare Turnstile (an invisible bot check) runs on every vote, and each network (IP) can add at most `IP_DAILY_CAP` new voters a day (default 20, so shared mobile and office networks still work). IPs are only stored as a salted hash and deleted after a day.
 - **Cooldown.** You can move your vote once an hour (`SWITCH_COOLDOWN_MIN`).
-- **Results unlock.** Percentages stay hidden until `REVEAL_AT` votes are in (default 100), so the launch never looks empty.
+- **Early results.** Standings show from the first vote, labelled "Early results" until 100 votes are in. Set `REVEAL_AT` to hide percentages until a threshold instead.
 - **Cheap reads.** Running totals live in a `tallies` table, and `/api/standings` is cached at the edge for 60 seconds. A page view costs one Worker request and almost no database reads.
 - **History.** An hourly cron recounts every vote (fixing any drift) and appends a snapshot to a 15-day history. The chart, the 24h movement and the "X overtakes Y" headlines are all built from it.
 
