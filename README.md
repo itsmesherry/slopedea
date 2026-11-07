@@ -86,7 +86,7 @@ curl "http://localhost:8787/cdn-cgi/local/scheduled"
 | D1 writes | 100,000 rows / day | 3 rows per new vote, so about 30,000 new votes a day. |
 | D1 reads | 5 million rows / day | About 12 rows per uncached standings request. |
 
-If it really takes off, Workers Paid is $5 a month and removes the daily caps.
+Past these limits, Workers Paid ($5/month) removes the daily caps.
 
 ## Adding a platform
 
