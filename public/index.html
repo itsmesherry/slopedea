@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slopedea</title>
+<meta name="description" content="The Global AI Slop Index. Which platform is drowning in the most AI slop? One person, one vote.">
+<meta property="og:title" content="Slopedea: The Global AI Slop Index">
+<meta property="og:description" content="Which platform is drowning in the most AI slop? One person, one vote.">
+<meta property="og:image" content="/og.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..900,0..100,0..1&family=IBM+Plex+Mono:wght@400;500;600&family=Schibsted+Grotesk:wght@400..800&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: an election-night results sheet for AI slop. Cool newsprint grey, ink type,
+   one "slop" highlighter colour that only ever marks the leader and the voter's own pick. */
+:root {
+  --paper: #E8EAEE;
+  --surface: #F5F6F8;
+  --ink: #111318;
+  --muted: #596070;
+  --rule: #C9CED6;
+  --slop: #D4E21C;
+  --on-slop: #111318;
+  --bar: #3A3F4A;
+  --rise: #B42318;
+  --fall: #2C6A4B;
+  --c1: #2F5FCC;
+  --c2: #C24A2C;
+  --c3: #7650C2;
+  --c4: #6B7280;
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-body: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10131A;
+    --surface: #171B24;
+    --ink: #ECEEF2;
+    --muted: #9BA2AF;
+    --rule: #2A303C;
+    --slop: #CDDB2A;
+    --on-slop: #10131A;
+    --bar: #5B6373;
+    --rise: #FF7B69;
+    --fall: #6FD09A;
+    --c1: #7EA2FF;
+    --c2: #FF8E6E;
+    --c3: #B79BFF;
+    --c4: #8A919E;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10131A;
+  --surface: #171B24;
+  --ink: #ECEEF2;
+  --muted: #9BA2AF;
+  --rule: #2A303C;
+  --slop: #CDDB2A;
+  --on-slop: #10131A;
+  --bar: #5B6373;
+  --rise: #FF7B69;
+  --fall: #6FD09A;
+  --c1: #7EA2FF;
+  --c2: #FF8E6E;
+  --c3: #B79BFF;
+  --c4: #8A919E;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+@media (max-width: 480px) { .wrap { padding: 0 16px; } }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+
+/* Ticker */
+.ticker {
+  background: var(--ink);
+  color: var(--paper);
+  overflow: hidden;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  height: 34px;
+  display: flex;
+  align-items: center;
+}
+.ticker-tag {
+  flex: none;
+  background: var(--slop);
+  color: var(--on-slop);
+  font-weight: 600;
+  padding: 0 12px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--on-slop); animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: 0.25; } }
+.ticker-viewport { overflow: hidden; flex: 1; }
+.ticker-track { display: inline-flex; gap: 40px; padding-left: 24px; animation: tick 60s linear infinite; }
+.ticker-track span b { color: var(--slop); font-weight: 600; }
+@keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* Masthead */
+.mast {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding-top: 36px;
+  padding-bottom: 20px;
+  border-bottom: 3px solid var(--ink);
+}
+.wordmark {
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144;
+  font-weight: 860;
+  font-size: clamp(48px, 9vw, 96px);
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+  position: relative;
+  display: inline-block;
+}
+.wordmark .blob {
+  position: relative;
+  display: inline-block;
+  z-index: 0;
+}
+.wordmark .blob::before {
+  content: "";
+  position: absolute;
+  left: -0.08em; right: -0.04em;
+  top: 0.38em; bottom: -0.02em;
+  background: var(--slop);
+  border-radius: 0.3em 0.24em 0.34em 0.2em;
+  z-index: -1;
+}
+.drip {
+  position: absolute;
+  top: calc(100% - 0.06em);
+  width: 0.12em;
+  background: var(--slop);
+  border-radius: 0 0 0.08em 0.08em;
+  z-index: -1;
+  transform-origin: top;
+  animation: drip 2.4s cubic-bezier(.5,0,.3,1) both;
+}
+.drip::after {
+  content: "";
+  position: absolute;
+  left: 50%; bottom: -0.07em;
+  width: 0.17em; height: 0.17em;
+  transform: translateX(-50%);
+  background: var(--slop);
+  border-radius: 50%;
+}
+@keyframes drip { from { transform: scaleY(0.15); } to { transform: scaleY(1); } }
+.mast-meta { text-align: right; display: grid; gap: 4px; padding-bottom: 6px; }
+.kicker {
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 50, "opsz" 24;
+  font-style: italic;
+  font-size: 22px;
+  font-weight: 500;
+}
+.dateline { font-size: 12.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+@media (max-width: 640px) { .mast-meta { text-align: left; } }
+
+/* Hero */
+.hero { padding: 32px 0 28px; border-bottom: 1px solid var(--rule); display: grid; gap: 16px; }
+.eyebrow { font-family: var(--font-mono); font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.hero-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 32px; flex-wrap: wrap; }
+.hero-name {
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144;
+  font-weight: 820;
+  font-size: clamp(56px, 12vw, 148px);
+  line-height: 0.88;
+  letter-spacing: -0.04em;
+}
+.hero-stats { display: grid; justify-items: end; gap: 6px; padding-bottom: 8px; }
+.hero-share { font-size: clamp(36px, 6vw, 60px); font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
+.hero-share small { font-size: 0.42em; color: var(--muted); font-weight: 500; letter-spacing: 0; margin-left: 4px; }
+.hero-sub { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: flex-end; font-size: 14px; }
+@media (max-width: 640px) { .hero-stats { justify-items: start; } .hero-sub { justify-content: flex-start; } }
+.ask { margin: 4px 0 0; max-width: 62ch; font-size: 18px; }
+.notes { display: grid; gap: 8px; }
+.note {
+  font-size: 14px;
+  padding: 10px 14px;
+  border-left: 4px solid var(--ink);
+  background: var(--surface);
+  max-width: 72ch;
+}
+.note.preview { border-left-color: var(--slop); }
+
+/* Chips */
+.delta { font-family: var(--font-mono); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.delta.up { color: var(--rise); }
+.delta.down { color: var(--fall); }
+.delta.flat { color: var(--muted); font-weight: 500; }
+
+/* Section heads */
+.sec-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.sec-head h2 {
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 60, "opsz" 48;
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: -0.015em;
+}
+.sec-head .mono { font-size: 13px; }
+
+/* Race */
+.race { padding: 32px 0; border-bottom: 1px solid var(--rule); }
+.race-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ink); }
+.row {
+  display: grid;
+  grid-template-columns: 2.6rem minmax(8rem, 13rem) 1fr 4.8rem 4.4rem 8.2rem;
+  grid-template-areas: "rank who bar pct delta vote";
+  align-items: center;
+  gap: 4px 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.row.mine { background: linear-gradient(90deg, color-mix(in srgb, var(--slop) 22%, transparent), transparent 70%); }
+.rank { grid-area: rank; font-family: var(--font-mono); font-size: 14px; color: var(--muted); padding-left: 4px; }
+.row.leader .rank { color: var(--ink); font-weight: 600; }
+.who { grid-area: who; min-width: 0; }
+.who .name { font-weight: 700; font-size: 18px; line-height: 1.2; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.who .sub { font-size: 13px; color: var(--muted); line-height: 1.3; }
+.tag {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--ink);
+  color: var(--paper);
+}
+.bar { grid-area: bar; height: 14px; background: color-mix(in srgb, var(--rule) 55%, transparent); border-radius: 2px; overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--bar); border-radius: 2px; transition: width 600ms cubic-bezier(.3,.7,.2,1); }
+.row.leader .bar span { background: var(--slop); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 18%, transparent); }
+.pct { grid-area: pct; text-align: right; font-family: var(--font-mono); font-weight: 600; font-size: 16px; font-variant-numeric: tabular-nums; }
+.row .delta { grid-area: delta; text-align: right; }
+.vote { grid-area: vote; justify-self: end; }
+@media (max-width: 720px) {
+  .row {
+    grid-template-columns: 2.2rem 1fr auto;
+    grid-template-areas: "rank who pct" ". bar bar" ". delta vote";
+    gap: 8px 12px;
+  }
+  .row .delta { text-align: left; }
+}
+
+/* Buttons */
+.btn {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 150ms, color 150ms, transform 150ms;
+  white-space: nowrap;
+}
+.btn:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:focus-visible { outline: 3px solid var(--slop); outline-offset: 2px; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn.voted { background: var(--slop); color: var(--on-slop); border-color: var(--slop); cursor: default; }
+.btn.voted:hover { background: var(--slop); color: var(--on-slop); }
+.btn-solid { background: var(--ink); color: var(--paper); }
+.btn-solid:hover:not(:disabled) { background: transparent; color: var(--ink); }
+
+/* Chart + headlines */
+.grid2 { display: grid; grid-template-columns: 1.6fr 1fr; gap: 40px; padding: 32px 0; border-bottom: 1px solid var(--rule); }
+@media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; gap: 32px; } }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart text { font-family: var(--font-mono); font-size: 11px; fill: var(--muted); }
+.chart .lbl { font-size: 12px; font-weight: 600; }
+.chart-empty { color: var(--muted); font-size: 14px; padding: 40px 0; }
+.headlines { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ink); }
+.headlines li { padding: 12px 0; border-bottom: 1px solid var(--rule); display: grid; gap: 2px; }
+.headlines .when { font-family: var(--font-mono); font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.headlines .what {
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 80, "opsz" 32;
+  font-size: 19px;
+  font-weight: 650;
+  line-height: 1.25;
+}
+.headlines .what mark { background: var(--slop); color: var(--on-slop); padding: 0 0.15em; border-radius: 2px; }
+
+/* Share */
+.share { padding: 32px 0; border-bottom: 1px solid var(--rule); }
+.share-body { display: grid; grid-template-columns: minmax(0, 1.5fr) 1fr; gap: 28px; align-items: start; }
+@media (max-width: 860px) { .share-body { grid-template-columns: 1fr; } }
+#card { width: 100%; height: auto; display: block; border: 1px solid var(--rule); border-radius: 6px; background: #E8EAEE; }
+.share-actions { display: grid; gap: 12px; justify-items: start; }
+.share-text { margin: 0; font-size: 15px; max-width: 48ch; }
+
+footer { padding: 28px 0 56px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; font-size: 14px; color: var(--muted); }
+footer h3 { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink); margin-bottom: 6px; }
+footer p { margin: 0; }
+@media (max-width: 720px) { footer { grid-template-columns: 1fr; } }
+
+.toast {
+  position: fixed;
+  left: 50%; bottom: 24px;
+  transform: translate(-50%, 20px);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms, transform 200ms;
+  max-width: calc(100% - 32px);
+  text-align: center;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track, .live-dot, .drip { animation: none; }
+  .bar span, .toast { transition: none; }
+}
+
+[hidden] { display: none !important; }
+.ts { position: fixed; right: 16px; bottom: 16px; z-index: 10; }
+.counter { font-family: var(--font-mono); font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.counter b { color: var(--ink); font-size: 22px; font-weight: 600; margin-right: 4px; }
+.counter.bump b { animation: bump 500ms ease; }
+@keyframes bump { 30% { color: var(--rise); } }
+@media (prefers-reduced-motion: reduce) { .counter.bump b { animation: none; } }
+.linkbtn { font: inherit; font-weight: 700; color: var(--ink); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-decoration-color: var(--slop); text-decoration-thickness: 3px; text-underline-offset: 3px; }
+.linkbtn:focus-visible { outline: 3px solid var(--slop); outline-offset: 2px; }
+.unlock { display: grid; gap: 8px; max-width: 520px; }
+.unlock-bar { height: 12px; border-radius: 6px; background: color-mix(in srgb, var(--rule) 60%, transparent); overflow: hidden; }
+.unlock-bar span { display: block; height: 100%; background: var(--slop); border-radius: 6px; transition: width 600ms ease; }
+.bar.sealed span { background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--rule) 80%, transparent) 0 6px, transparent 6px 12px); }
+.contact { padding: 0 0 56px; font-size: 14px; color: var(--muted); }
+.contact a { color: var(--ink); font-weight: 700; }
+footer { padding-bottom: 24px; }
+</style>
+</head>
+<body>
+<div class="ticker" aria-label="Latest movements">
+  <div class="ticker-tag"><span class="live-dot"></span>Live</div>
+  <div class="ticker-viewport"><div class="ticker-track" id="ticker"><span>Polls are open. Cast your vote.</span></div></div>
+</div>
+
+<header class="mast wrap">
+  <h1 class="wordmark" aria-label="Slopedea"><span class="blob">Slop<span class="drip" style="left:18%;height:0.34em;animation-delay:.2s"></span><span class="drip" style="left:57%;height:0.52em;animation-delay:.5s"></span><span class="drip" style="left:84%;height:0.24em;animation-delay:.9s"></span></span>edea</h1>
+  <div class="mast-meta">
+    <div class="kicker">The Global AI Slop Index</div>
+    <div class="dateline" id="dateline">Live count</div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero" aria-labelledby="heroLabel">
+    <div class="eyebrow" id="heroLabel">Sloppiest platform right now</div>
+    <div class="hero-row">
+      <div class="hero-name" id="heroName">Counting…</div>
+      <div class="hero-stats">
+        <div class="hero-share mono" id="heroShare"></div>
+        <div class="hero-sub"><span id="heroDelta"></span><span class="muted" id="heroSince"></span></div>
+        <div class="counter" id="counter" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="unlock" id="unlock" hidden>
+      <div class="unlock-bar"><span id="unlockFill"></span></div>
+      <div class="mono small" id="unlockText"></div>
+    </div>
+    <p class="ask">Which platform is drowning in the most AI slop? Everyone gets one vote. Move yours whenever your feed changes your mind.</p>
+    <div class="notes" id="notes"></div>
+  </section>
+
+  <section class="race" aria-labelledby="raceTitle">
+    <div class="sec-head"><h2 id="raceTitle">The race</h2><div class="mono muted" id="voterCount"></div></div>
+    <ol class="race-list" id="raceList"></ol>
+  </section>
+
+  <section class="grid2">
+    <div>
+      <div class="sec-head"><h2>Share of the vote, 14 days</h2><div class="mono muted small">Top 5, % of all votes</div></div>
+      <div class="chart" id="chart"></div>
+    </div>
+    <div>
+      <div class="sec-head"><h2>Headlines</h2></div>
+      <ol class="headlines" id="headlines"></ol>
+    </div>
+  </section>
+
+  <section class="share" aria-labelledby="shareTitle">
+    <div class="sec-head"><h2 id="shareTitle">Share the standings</h2></div>
+    <div class="share-body">
+      <canvas id="card" width="1200" height="630" aria-label="Share card with the current top five"></canvas>
+      <div class="share-actions">
+        <p class="share-text" id="shareText"></p>
+        <button class="btn btn-solid" id="dlBtn" type="button">Download image</button>
+        <button class="btn" id="copyBtn" type="button">Copy headline</button>
+        <div class="muted small" id="shareMsg" role="status"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div><h3>One person, one vote</h3><p>No account needed. Your vote is tied to your device, checked by a bot filter, and each network can only add so many new votes a day. We never store names, emails or IP addresses. You can move your vote once an hour.</p></div>
+    <div><h3>How the index works</h3><p>A platform's score is its share of all current votes. Movement is measured against the count 24 hours earlier, and history is saved every hour.</p></div>
+    <div><h3>What counts as slop</h3><p>Low-effort AI content made for reach: generated posts, fake images, bot replies, faceless video farms. This is a public opinion poll, not a measurement.</p></div>
+  </footer>
+  <p class="contact">Ideas, press, or a platform we missed? Write to <a href="mailto:hello@slopedea.com">hello@slopedea.com</a>. A real person reads it.<br>Slopedea is an independent public opinion poll, not affiliated with any platform listed. Platform names are trademarks of their owners.</p>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="ts" id="ts"></div>
+
+<script>
+const PLATFORMS = [
+  { id: "linkedin",  name: "LinkedIn",  sub: "Thought leadership, generated" },
+  { id: "facebook",  name: "Facebook",  sub: "Shrimp Jesus and friends" },
+  { id: "x",         name: "X",         sub: "Reply bots on every post" },
+  { id: "instagram", name: "Instagram", sub: "AI influencers, AI captions" },
+  { id: "tiktok",    name: "TikTok",    sub: "Text-to-speech story farms" },
+  { id: "youtube",   name: "YouTube",   sub: "Faceless channels at scale" },
+  { id: "pinterest", name: "Pinterest", sub: "Recipes that never existed" },
+  { id: "threads",   name: "Threads",   sub: "Engagement bait, automated" },
+  { id: "reddit",    name: "Reddit",    sub: "Bot posts farming karma" },
+  { id: "quora",     name: "Quora",     sub: "Answers nobody wrote" },
+  { id: "medium",    name: "Medium",    sub: "Ten-minute reads, zero-minute writes" }
+];
+const P = Object.fromEntries(PLATFORMS.map((p, i) => [p.id, { ...p, i }]));
+const HOUR = 3600e3, DAY = 24 * HOUR;
+const $ = (s) => document.querySelector(s);
+
+let S = null;            // last /api/standings response
+let ME = { vote: null, nextSwitchAt: 0 };
+let loadError = false, writing = false;
+const hasVoted = () => /(?:^|;\s*)sl_in=1/.test(document.cookie);
+
+/* ---------- data ---------- */
+async function loadStandings() {
+  try {
+    const r = await fetch("/api/standings", { headers: { Accept: "application/json" } });
+    if (!r.ok) throw new Error(r.status);
+    const fresh = await r.json();
+    // Keep a vote we just cast if the cached response predates it.
+    if (S && S._local && fresh.now < S._local.t) applyLocal(fresh, S._local);
+    S = fresh;
+    loadError = false;
+  } catch {
+    loadError = true;
+  }
+  render();
+}
+async function loadMe() {
+  if (!hasVoted()) return;
+  try {
+    const r = await fetch("/api/me", { credentials: "same-origin" });
+    if (r.ok) ME = await r.json();
+  } catch { /* keep previous */ }
+}
+function applyLocal(st, change) {
+  st._local = change;
+  if (!st.revealed || !st.counts) { st.total += change.prev ? 0 : 1; return; }
+  if (change.prev && st.counts[change.prev] > 0) st.counts[change.prev]--;
+  st.counts[change.to] = (st.counts[change.to] || 0) + 1;
+  if (!change.prev) st.total++;
+}
+
+/* ---------- counting ---------- */
+function rank(c, prevOrder) {
+  const counts = {}; let n = 0;
+  PLATFORMS.forEach(p => { counts[p.id] = (c && c[p.id]) | 0; n += counts[p.id]; });
+  const s = {}; for (const k in counts) s[k] = n ? counts[k] / n * 100 : 0;
+  const order = PLATFORMS.map(p => p.id).sort((a, b) =>
+    counts[b] - counts[a] || (prevOrder ? prevOrder.indexOf(a) - prevOrder.indexOf(b) : P[a].i - P[b].i));
+  return { c: counts, s, n, order };
+}
+function points() {
+  if (!S || !S.revealed) return [];
+  const pts = (S.history || []).filter(h => h && h.c && h.t < S.now).map(h => ({ t: h.t, c: h.c }));
+  pts.push({ t: Date.now(), c: S.counts });
+  return pts;
+}
+function at(pts, T) {
+  let found = null;
+  for (const p of pts) { if (p.t <= T) found = p; else break; }
+  return found;
+}
+function headlines(pts) {
+  const out = [];
+  let prev = null;
+  for (const p of pts) {
+    const cur = rank(p.c, prev && prev.order);
+    if (prev && prev.n && cur.n) {
+      cur.order.slice(0, 5).forEach((id, i) => {
+        const was = prev.order.indexOf(id);
+        const passed = prev.order[i];
+        if (was > i && cur.c[id] > 0 && passed !== id && cur.order.indexOf(passed) > i) {
+          out.push({ t: p.t, id, passed, rank: i + 1 });
+        }
+      });
+    }
+    prev = cur;
+  }
+  return out.reverse().slice(0, 6);
+}
+function leaderSince(pts, leader) {
+  let since = null;
+  for (let k = pts.length - 1; k >= 0; k--) {
+    const st = rank(pts[k].c);
+    if (!st.n || st.order[0] !== leader || st.c[leader] === st.c[st.order[1]]) break;
+    since = pts[k].t;
+  }
+  return since;
+}
+
+/* ---------- formatting ---------- */
+const fmtDate = (t) => new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(t);
+const fmtLong = (t) => new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" }).format(t);
+const fmtTime = (t) => new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(t);
+const pct = (x) => x.toFixed(1) + "%";
+function deltaHtml(d) {
+  if (Math.abs(d) < 0.05) return `<span class="delta flat" title="No change in 24 hours">±0.0</span>`;
+  const up = d > 0;
+  return `<span class="delta ${up ? "up" : "down"}" title="${up ? "Up" : "Down"} ${Math.abs(d).toFixed(1)} points in 24 hours">${up ? "▲" : "▼"} ${Math.abs(d).toFixed(1)}</span>`;
+}
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function headlineText(h) {
+  return h.rank === 1
+    ? `${P[h.id].name} overtakes ${P[h.passed].name} as the sloppiest platform`
+    : `${P[h.id].name} passes ${P[h.passed].name} for #${h.rank}`;
+}
+function waitText(ms) {
+  const m = Math.ceil(ms / 60e3);
+  return m >= 60 ? `${Math.ceil(m / 60)} hr` : `${m} min`;
+}
+
+/* ---------- render ---------- */
+let lastCardKey = "";
+function render() {
+  const now = Date.now();
+  const revealed = !!(S && S.revealed);
+  const pts = points();
+  const cur = revealed ? rank(S.counts) : rank(null);
+  const dayAgo = at(pts, now - DAY);
+  const day = dayAgo ? rank(dayAgo.c) : null;
+  const mine = ME.vote;
+  const leader = cur.n ? cur.order[0] : null;
+  const tied = leader && cur.c[leader] === cur.c[cur.order[1]];
+
+  const cEl = $("#counter");
+  if (S) {
+    const prevN = +(cEl.dataset.n || 0);
+    cEl.innerHTML = `<b>${S.total.toLocaleString()}</b>${S.total === 1 ? "vote" : "votes"} cast`;
+    if (prevN && S.total > prevN) { cEl.classList.remove("bump"); void cEl.offsetWidth; cEl.classList.add("bump"); }
+    cEl.dataset.n = S.total;
+  }
+  $("#dateline").textContent = `${fmtLong(now)} · Updated ${fmtTime(now)}`;
+
+  // hero
+  const unlock = $("#unlock");
+  if (S && !revealed) {
+    $("#heroName").textContent = "Polls are open";
+    $("#heroLabel").textContent = "Results unlock soon";
+    $("#heroShare").innerHTML = "";
+    $("#heroDelta").innerHTML = "";
+    $("#heroSince").textContent = "";
+    unlock.hidden = false;
+    const need = Math.max(1, S.revealAt);
+    $("#unlockFill").style.width = Math.min(100, S.total / need * 100).toFixed(1) + "%";
+    $("#unlockText").textContent = `${S.total.toLocaleString()} of ${need.toLocaleString()} votes in. Standings go public at ${need.toLocaleString()}.`;
+  } else {
+    unlock.hidden = true;
+    $("#heroLabel").textContent = "Sloppiest platform right now";
+    if (!cur.n) {
+      $("#heroName").textContent = S ? "No votes yet" : (loadError ? "Polls are open" : "Counting…");
+      $("#heroShare").innerHTML = "";
+      $("#heroDelta").innerHTML = "";
+      $("#heroSince").textContent = S ? "Cast the first vote below." : "";
+    } else {
+      $("#heroName").textContent = tied ? `${P[leader].name} (tied)` : P[leader].name;
+      $("#heroShare").innerHTML = `${cur.s[leader].toFixed(1)}<small>% of votes</small>`;
+      $("#heroDelta").innerHTML = day && day.n ? deltaHtml(cur.s[leader] - day.s[leader]) + `<span class="muted" style="margin-left:6px">24h</span>` : "";
+      const since = tied ? null : leaderSince(pts, leader);
+      $("#heroSince").textContent = since && since < now - 6 * HOUR ? `#1 since ${fmtDate(since)}` : (tied ? "" : "New #1");
+    }
+  }
+
+  // notes
+  const notes = [];
+  if (loadError) notes.push("Couldn't reach the live count. It retries every minute.");
+  $("#notes").innerHTML = notes.map(t => `<div class="note">${esc(t)}</div>`).join("");
+
+  // race
+  $("#voterCount").textContent = S ? `${S.total.toLocaleString()} ${S.total === 1 ? "vote" : "votes"} counted` : "";
+  const maxS = Math.max(1, ...PLATFORMS.map(p => cur.s[p.id]));
+  const cooling = mine && ME.nextSwitchAt > now;
+  $("#raceList").innerHTML = cur.order.map((id, i) => {
+    const isMine = id === mine, isLead = revealed && cur.n && i === 0 && cur.c[id] > 0;
+    let label = "Vote";
+    if (isMine) label = "Your vote ✓";
+    else if (mine) label = cooling ? `Move in ${waitText(ME.nextSwitchAt - now)}` : "Move vote here";
+    const disabled = !isMine && (writing || cooling);
+    const stats = revealed
+      ? `<div class="bar" role="img" aria-label="${pct(cur.s[id])} of votes"><span style="width:${(cur.s[id] / maxS * 100).toFixed(2)}%"></span></div>
+         <span class="pct">${pct(cur.s[id])}</span>
+         ${day && day.n ? deltaHtml(cur.s[id] - day.s[id]) : '<span class="delta flat">new</span>'}`
+      : `<div class="bar sealed" aria-label="Hidden until results unlock"><span style="width:100%"></span></div>
+         <span class="pct muted">??</span><span class="delta flat">sealed</span>`;
+    return `<li class="row${isLead ? " leader" : ""}${isMine ? " mine" : ""}">
+      <span class="rank">${revealed ? String(i + 1).padStart(2, "0") : "··"}</span>
+      <div class="who"><div class="name">${esc(P[id].name)}${isMine ? '<span class="tag">Your pick</span>' : ""}</div><div class="sub">${esc(P[id].sub)}</div></div>
+      ${stats}
+      <button type="button" class="btn vote${isMine ? " voted" : ""}" data-p="${id}" id="vote-${id}" ${disabled ? "disabled" : ""} ${isMine ? 'aria-pressed="true"' : ""}>${label}</button>
+    </li>`;
+  }).join("");
+
+  // headlines + ticker
+  const hs = revealed && cur.n ? headlines(pts) : [];
+  if (hs.length) {
+    $("#headlines").innerHTML = hs.map(h => `<li><span class="when">${fmtDate(h.t)} · ${fmtTime(h.t)}</span><span class="what"><mark>${esc(P[h.id].name)}</mark> ${esc(headlineText(h).slice(P[h.id].name.length + 1))}</span></li>`).join("");
+  } else {
+    const msg = revealed && cur.n && leader
+      ? `<mark>${esc(P[leader].name)}</mark> leads with ${pct(cur.s[leader])} of the vote`
+      : "Polls are open. The first lead change will show up here.";
+    $("#headlines").innerHTML = `<li><span class="when">${fmtDate(now)}</span><span class="what">${msg}</span></li>`;
+  }
+  const tick = hs.map(h => `<span><b>${fmtDate(h.t)}</b> ${esc(headlineText(h))}</span>`);
+  if (revealed && cur.n) tick.unshift(`<span><b>NOW</b> ${cur.order.slice(0, 3).map(id => `${esc(P[id].name)} ${pct(cur.s[id])}`).join(" · ")}</span>`);
+  if (S && !revealed) tick.push(`<span><b>POLLS OPEN</b> ${S.total.toLocaleString()} votes in. Results unlock at ${S.revealAt.toLocaleString()}.</span>`);
+  if (!tick.length) tick.push("<span>Polls are open. Cast your vote.</span>");
+  $("#ticker").innerHTML = tick.join("") + tick.join("");
+
+  renderChart(pts, cur, revealed);
+
+  const shareLine = revealed && cur.n
+    ? `${P[leader].name} is the sloppiest platform on Slopedea right now with ${pct(cur.s[leader])} of the vote. Top 3: ${cur.order.slice(0, 3).map(id => `${P[id].name} ${pct(cur.s[id])}`).join(", ")}. Cast your vote: ${location.origin}`
+    : `Which platform has the most AI slop? Cast your vote on Slopedea: ${location.origin}`;
+  $("#shareText").textContent = shareLine;
+  $("#copyBtn").dataset.text = shareLine;
+  const key = (revealed ? cur.order.slice(0, 5).map(id => id + cur.c[id]).join() : "sealed") + cur.n + fmtDate(now);
+  if (key !== lastCardKey) { lastCardKey = key; drawCard(now, revealed ? cur : rank(null)); }
+}
+
+function renderChart(pts, cur, revealed) {
+  const el = $("#chart");
+  if (!revealed || !cur.n) { el.innerHTML = `<div class="chart-empty">${revealed ? "The chart fills in as votes arrive." : "The chart unlocks with the results."}</div>`; return; }
+  if (pts.length < 2 || Date.now() - pts[0].t < DAY) { el.innerHTML = `<div class="chart-empty">History is saved every hour. The chart appears once there's a full day of it.</div>`; return; }
+  const now = Date.now(), N = 15, top = cur.order.slice(0, 5);
+  const ts = Array.from({ length: N }, (_, k) => now - (N - 1 - k) * DAY);
+  const series = top.map(id => ({ id, v: ts.map((T, k) => { const p = k === N - 1 ? pts[pts.length - 1] : at(pts, T); if (!p) return null; const st = rank(p.c); return st.n ? st.s[id] : null; }) }));
+  const maxV = Math.max(10, ...series.flatMap(s => s.v.filter(x => x !== null)));
+  const yMax = Math.ceil(maxV / 10) * 10;
+  const W = 680, H = 300, L = 34, R = 104, T = 12, B = 28;
+  const x = k => L + (W - L - R) * k / (N - 1);
+  const y = v => T + (H - T - B) * (1 - v / yMax);
+  const colors = ["var(--ink)", "var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)"];
+  let g = "";
+  for (let v = 0; v <= yMax; v += 10) {
+    g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" style="stroke:var(--rule)" stroke-width="1" ${v ? 'stroke-dasharray="2 4"' : ""}/>`;
+    g += `<text x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${v}%</text>`;
+  }
+  [0, 7, 14].forEach(k => g += `<text x="${x(k)}" y="${H - 6}" text-anchor="${k === 0 ? "start" : k === 14 ? "end" : "middle"}">${k === 14 ? "Now" : fmtDate(ts[k])}</text>`);
+  const ls = series[0];
+  const firstK = ls.v.findIndex(v => v !== null);
+  if (firstK >= 0) {
+    let a = `M${x(firstK)},${y(0)}`;
+    ls.v.forEach((v, k) => { if (v !== null) a += ` L${x(k)},${y(v)}`; });
+    a += ` L${x(N - 1)},${y(0)} Z`;
+    g += `<path d="${a}" style="fill:var(--slop)" opacity="0.35"/>`;
+  }
+  series.slice().reverse().forEach((s) => {
+    const idx = top.indexOf(s.id);
+    let d = "";
+    s.v.forEach((v, k) => { if (v !== null) d += (d ? " L" : "M") + `${x(k)},${y(v)}`; });
+    g += `<path d="${d}" fill="none" style="stroke:${colors[idx]}" stroke-width="${idx === 0 ? 3 : 2}" stroke-linejoin="round" stroke-linecap="round"/>`;
+    const last = s.v[N - 1];
+    if (last !== null) g += `<circle cx="${x(N - 1)}" cy="${y(last)}" r="${idx === 0 ? 5 : 3.5}" style="fill:${colors[idx]};stroke:var(--paper)" stroke-width="2"/>`;
+  });
+  const labs = series.map((s, idx) => ({ idx, id: s.id, yy: y(s.v[N - 1] ?? 0), v: s.v[N - 1] ?? 0 })).sort((a, b) => a.yy - b.yy);
+  for (let i = 1; i < labs.length; i++) if (labs[i].yy - labs[i - 1].yy < 15) labs[i].yy = labs[i - 1].yy + 15;
+  const over = labs.length ? labs[labs.length - 1].yy - (H - B) : 0;
+  if (over > 0) labs.forEach(l => l.yy -= over);
+  labs.forEach(l => { g += `<text class="lbl" x="${x(N - 1) + 10}" y="${l.yy + 4}" style="fill:${colors[l.idx]}">${esc(P[l.id].name)} ${l.v.toFixed(0)}%</text>`; });
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Vote share over the last 14 days for ${top.map(id => P[id].name).join(", ")}">${g}</svg>`;
+}
+
+/* ---------- share card ---------- */
+let fontsReady = false;
+function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+function drawCard(now, cur) {
+  const cv = $("#card"), c = cv.getContext("2d");
+  const W = 1200, H = 630, INK = "#111318", MUTED = "#596070", SLOP = "#D4E21C", PAPER = "#E8EAEE", RULE = "#C9CED6";
+  const disp = fontsReady ? "Fraunces" : "Georgia", mono = fontsReady ? '"IBM Plex Mono"' : "monospace", body = fontsReady ? '"Schibsted Grotesk"' : "Arial";
+  c.textAlign = "left"; c.textBaseline = "alphabetic";
+  c.fillStyle = PAPER; c.fillRect(0, 0, W, H);
+  c.fillStyle = INK; c.fillRect(0, 0, W, 14);
+  c.font = `850 60px ${disp}`;
+  const slopW = c.measureText("Slop").width;
+  c.fillStyle = SLOP; rr(c, 58, 72, slopW + 14, 44, 18); c.fill();
+  c.fillRect(58 + slopW * 0.55, 110, 7, 24); c.beginPath(); c.arc(61.5 + slopW * 0.55, 134, 6, 0, 7); c.fill();
+  c.fillStyle = INK; c.fillText("Slopedea", 62, 112);
+  c.textAlign = "right"; c.font = `500 20px ${mono}`; c.fillStyle = MUTED;
+  c.fillText("THE GLOBAL AI SLOP INDEX", W - 60, 86);
+  c.fillText(fmtLong(now).toUpperCase(), W - 60, 114);
+  c.textAlign = "left";
+  c.fillStyle = INK; c.fillRect(60, 150, W - 120, 3);
+  if (!cur.n) {
+    c.font = `500 20px ${mono}`; c.fillStyle = MUTED; c.fillText("THE QUESTION", 60, 200);
+    c.fillStyle = INK; c.font = `820 92px ${disp}`;
+    c.fillText("Which platform has", 54, 300);
+    c.fillText("the most AI slop?", 54, 395);
+    c.font = `500 30px ${body}`; c.fillStyle = MUTED; c.fillText("One person, one vote. Results go public soon.", 60, 470);
+  } else {
+    const lead = cur.order[0];
+    c.font = `500 20px ${mono}`; c.fillStyle = MUTED; c.fillText("SLOPPIEST PLATFORM RIGHT NOW", 60, 200);
+    c.fillStyle = INK; c.font = `820 116px ${disp}`; c.fillText(P[lead].name, 54, 300);
+    c.textAlign = "right"; c.font = `600 76px ${mono}`; c.fillText(pct(cur.s[lead]), W - 60, 300); c.textAlign = "left";
+    const maxS = Math.max(1, cur.s[lead]);
+    cur.order.slice(1, 5).forEach((id, i) => {
+      const yy = 352 + i * 54;
+      c.fillStyle = RULE; c.fillRect(60, yy + 34, W - 120, 1);
+      c.font = `500 22px ${mono}`; c.fillStyle = MUTED; c.fillText(String(i + 2).padStart(2, "0"), 60, yy + 22);
+      c.font = `700 28px ${body}`; c.fillStyle = INK; c.fillText(P[id].name, 112, yy + 23);
+      c.fillStyle = "rgba(201,206,214,.6)"; c.fillRect(380, yy + 4, 620, 18);
+      c.fillStyle = "#3A3F4A"; c.fillRect(380, yy + 4, 620 * cur.s[id] / maxS, 18);
+      c.textAlign = "right"; c.font = `600 26px ${mono}`; c.fillStyle = INK; c.fillText(pct(cur.s[id]), W - 60, yy + 23); c.textAlign = "left";
+    });
+  }
+  c.fillStyle = INK; c.fillRect(0, H - 56, W, 56);
+  c.fillStyle = PAPER; c.font = `600 20px ${mono}`;
+  c.fillText(cur.n ? `${cur.n.toLocaleString()} VOTES · ONE PERSON, ONE VOTE` : "ONE PERSON, ONE VOTE", 60, H - 21);
+  c.textAlign = "right"; c.fillStyle = SLOP; c.fillText(location.host ? location.host.toUpperCase() : "CAST YOURS ON SLOPEDEA", W - 60, H - 21); c.textAlign = "left";
+}
+
+/* ---------- actions ---------- */
+let toastTimer;
+function toast(msg) {
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 3200);
+}
+let tsWidget = null, tsWaiter = null;
+function botToken() {
+  const key = S && S.turnstileSiteKey;
+  if (!key) return Promise.resolve(null);
+  return new Promise((resolve, reject) => {
+    if (!window.turnstile) { reject(new Error("bot_check_unavailable")); return; }
+    const timer = setTimeout(() => { tsWaiter = null; reject(new Error("bot_check_timeout")); }, 30000);
+    tsWaiter = {
+      ok: (t) => { clearTimeout(timer); tsWaiter = null; resolve(t); },
+      fail: () => { clearTimeout(timer); tsWaiter = null; reject(new Error("bot_check_failed")); }
+    };
+    if (tsWidget === null) {
+      tsWidget = window.turnstile.render("#ts", {
+        sitekey: key,
+        execution: "execute",
+        appearance: "interaction-only",
+        callback: (t) => tsWaiter && tsWaiter.ok(t),
+        "error-callback": () => tsWaiter && tsWaiter.fail()
+      });
+    } else {
+      window.turnstile.reset(tsWidget);
+    }
+    window.turnstile.execute(tsWidget);
+  });
+}
+
+async function castVote(pid) {
+  if (writing || ME.vote === pid) return;
+  writing = true; render();
+  try {
+    let token = null;
+    try { token = await botToken(); }
+    catch { toast("The bot check didn't load. Refresh the page and try again."); return; }
+    const r = await fetch("/api/vote", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ platform: pid, token })
+    });
+    const data = await r.json().catch(() => ({}));
+    if (r.status === 429 && data.error === "cooldown") {
+      ME.nextSwitchAt = data.nextSwitchAt; ME.vote = data.vote || ME.vote;
+      toast(`You can move your vote again in ${waitText(data.nextSwitchAt - Date.now())}.`);
+    } else if (r.status === 429 && data.error === "network_cap") {
+      toast("Your network has added a lot of votes today. Try again tomorrow.");
+    } else if (r.status === 403 && data.error === "bot_check_failed") {
+      toast("We couldn't confirm you're human. Refresh and try again.");
+    } else if (!r.ok) {
+      toast("Couldn't save your vote. Try again in a moment.");
+    } else {
+      const prev = data.previous;
+      if (S && prev !== pid) applyLocal(S, { prev, to: pid, t: Date.now() });
+      ME.vote = pid; ME.nextSwitchAt = data.nextSwitchAt;
+      toast(prev && prev !== pid ? `Vote moved from ${P[prev].name} to ${P[pid].name}.` : `Vote cast for ${P[pid].name}. You can move it anytime after an hour.`);
+    }
+  } catch {
+    toast("You seem to be offline. Your vote wasn't saved.");
+  } finally { writing = false; render(); }
+}
+
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("button.vote");
+  if (b && !b.disabled) { castVote(b.dataset.p); return; }
+});
+$("#copyBtn").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText($("#copyBtn").dataset.text || ""); $("#shareMsg").textContent = "Headline copied."; }
+  catch { $("#shareMsg").textContent = "Copy didn't work here. Select the text above instead."; }
+});
+$("#dlBtn").addEventListener("click", () => {
+  $("#card").toBlob((blob) => {
+    if (!blob) { $("#shareMsg").textContent = "Couldn't create the image."; return; }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "slopedea-standings.png";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }, "image/png");
+});
+
+/* ---------- boot ---------- */
+render();
+Promise.all([
+  document.fonts.load('820 100px "Fraunces"'),
+  document.fonts.load('600 20px "IBM Plex Mono"'),
+  document.fonts.load('700 28px "Schibsted Grotesk"')
+]).then(() => { fontsReady = true; lastCardKey = ""; render(); }).catch(() => {});
+
+(async function boot() {
+  await Promise.all([loadMe(), loadStandings()]);
+  render();
+  setInterval(() => { if (document.visibilityState === "visible") loadStandings(); }, 60e3);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") render(); });
+})();
+</script>
+</body>
+</html>

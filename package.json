@@ -1,0 +1,19 @@
+{
+  "name": "slopedea",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute slopedea --remote --file=schema.sql",
+    "db:init:local": "wrangler d1 execute slopedea --local --file=schema.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "workerd@1.20261104.1": true,
+    "fsevents@2.3.3": true
+  }
+}
