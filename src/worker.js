@@ -126,9 +126,11 @@ async function vote(req, env) {
 
   if (!voter) {
     voter = b64url(crypto.getRandomValues(new Uint8Array(18)));
+    // Production is always https; plain http only happens in local dev on a LAN address.
+    const secure = new URL(req.url).protocol === "https:";
     headers["Set-Cookie"] = [
-      cookie("sl_v", await signVoter(voter, env), { maxAge: VOTER_COOKIE_DAYS * 86400, httpOnly: true }),
-      cookie("sl_in", "1", { maxAge: VOTER_COOKIE_DAYS * 86400 }),
+      cookie("sl_v", await signVoter(voter, env), { maxAge: VOTER_COOKIE_DAYS * 86400, httpOnly: true, secure }),
+      cookie("sl_in", "1", { maxAge: VOTER_COOKIE_DAYS * 86400, secure }),
     ];
   }
 
@@ -239,8 +241,9 @@ function getCookie(req, name) {
   return null;
 }
 
-function cookie(name, value, { maxAge, httpOnly = false }) {
-  let c = `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAge}; SameSite=Lax; Secure`;
+function cookie(name, value, { maxAge, httpOnly = false, secure = true }) {
+  let c = `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+  if (secure) c += "; Secure";
   if (httpOnly) c += "; HttpOnly";
   return c;
 }

@@ -160,24 +160,18 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   border-radius: 0.3em 0.24em 0.34em 0.2em;
   z-index: -1;
 }
+/* Dark mode only: a hard shadow keeps the white letters from melting into the green. */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .wordmark .blob { text-shadow: 0.035em 0.035em 0 var(--paper), -0.015em 0.015em 0 var(--paper); } }
+:root[data-theme="dark"] .wordmark .blob { text-shadow: 0.035em 0.035em 0 var(--paper), -0.015em 0.015em 0 var(--paper); }
 .drip {
   position: absolute;
-  top: calc(100% - 0.06em);
-  width: 0.12em;
-  background: var(--slop);
-  border-radius: 0 0 0.08em 0.08em;
+  top: calc(100% - 0.07em);
+  width: auto;
+  overflow: visible;
+  fill: var(--slop);
   z-index: -1;
   transform-origin: top;
   animation: drip 2.4s cubic-bezier(.5,0,.3,1) both;
-}
-.drip::after {
-  content: "";
-  position: absolute;
-  left: 50%; bottom: -0.07em;
-  width: 0.17em; height: 0.17em;
-  transform: translateX(-50%);
-  background: var(--slop);
-  border-radius: 50%;
 }
 @keyframes drip { from { transform: scaleY(0.15); } to { transform: scaleY(1); } }
 .mast-meta { text-align: right; display: grid; gap: 4px; padding-bottom: 6px; }
@@ -189,7 +183,13 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   font-weight: 500;
 }
 .dateline { font-size: 13px; color: var(--muted); }
-@media (max-width: 640px) { .mast-meta { text-align: left; } }
+@media (max-width: 640px) {
+  .mast { flex-wrap: nowrap; align-items: flex-end; gap: 12px; padding-top: 18px; padding-bottom: 12px; }
+  .wordmark { font-size: 44px; }
+  .mast-meta { padding-bottom: 2px; }
+  .kicker { font-size: 15px; line-height: 1.15; max-width: 8.5em; }
+  .dateline { display: none; }
+}
 
 /* Hero */
 .hero { padding: 32px 0 28px; border-bottom: 1px solid var(--rule); display: grid; gap: 16px; }
@@ -207,7 +207,16 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .hero-share { font-size: clamp(36px, 6vw, 60px); font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
 .hero-share small { font-size: 0.42em; color: var(--muted); font-weight: 500; letter-spacing: 0; margin-left: 4px; }
 .hero-sub { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: flex-end; font-size: 14px; }
-@media (max-width: 640px) { .hero-stats { justify-items: start; } .hero-sub { justify-content: flex-start; } }
+@media (max-width: 640px) {
+  .hero { padding: 18px 0 16px; gap: 10px; }
+  .hero-name { font-size: 48px; }
+  .hero-stats { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; padding-bottom: 0; }
+  .hero-share { font-size: 30px; }
+  .hero-sub { justify-content: flex-start; }
+  .counter b { font-size: 16px; }
+  .ask { font-size: 15px; margin: 0; }
+  .race { padding: 20px 0; }
+}
 .ask { margin: 4px 0 0; max-width: 62ch; font-size: 18px; }
 .notes { display: grid; gap: 8px; }
 .note {
@@ -248,7 +257,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   padding: 12px 0;
   border-bottom: 1px solid var(--rule);
 }
-.row.mine { background: color-mix(in srgb, var(--slop) 18%, transparent); }
+.row.mine { background: color-mix(in srgb, var(--slop) 18%, transparent); margin: 0 -10px; padding-left: 10px; padding-right: 10px; border-radius: 4px; }
 .rank { grid-area: rank; font-family: var(--font-mono); font-size: 14px; color: var(--muted); padding-left: 4px; }
 .row.leader .rank { color: var(--ink); font-weight: 600; }
 .who { grid-area: who; min-width: 0; }
@@ -271,11 +280,12 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .vote { grid-area: vote; justify-self: end; }
 @media (max-width: 720px) {
   .row {
-    grid-template-columns: 2.2rem 1fr auto;
-    grid-template-areas: "rank who pct" ". bar bar" ". delta vote";
-    gap: 8px 12px;
+    grid-template-columns: 1.8rem 1fr 4.4rem 3.6rem;
+    grid-template-areas: "rank who vote vote" ". bar pct delta";
+    gap: 6px 10px;
   }
-  .row .delta { text-align: left; }
+  .who .name { font-size: 17px; }
+  .vote { width: 100%; }
 }
 
 /* Buttons */
@@ -291,11 +301,17 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   cursor: pointer;
   transition: background 150ms, color 150ms, transform 150ms;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
+.btn .check { width: 1em; height: 1em; flex: none; }
 .btn:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
 .btn:active:not(:disabled) { transform: translateY(1px); }
 .btn:focus-visible { outline: 3px solid var(--slop); outline-offset: 2px; }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+@media (pointer: coarse) { .btn { min-height: 44px; padding: 10px 16px; } }
 .btn.voted { background: var(--slop); color: var(--on-slop); border-color: var(--slop); cursor: default; }
 .btn.voted:hover { background: var(--slop); color: var(--on-slop); }
 .btn-solid { background: var(--ink); color: var(--paper); }
@@ -379,7 +395,7 @@ footer b { color: var(--ink); }
 </div>
 
 <header class="mast wrap">
-  <h1 class="wordmark" aria-label="Slopedea"><span class="blob">Slop<span class="drip" style="left:18%;height:0.34em;animation-delay:.2s"></span><span class="drip" style="left:57%;height:0.52em;animation-delay:.5s"></span><span class="drip" style="left:84%;height:0.24em;animation-delay:.9s"></span></span>edea</h1>
+  <h1 class="wordmark" aria-label="Slopedea"><span class="blob">Slop<svg class="drip" viewBox="0 0 20 38" style="left:16%;height:0.342em;animation-delay:.2s" aria-hidden="true"><path d="M0,0 C4,0 6,2 6,6 C6,11.0 7,11.0 7,16 C7,22 2,24 2,30 A8,8 0 0 0 18,30 C18,24 13,22 13,16 C13,11.0 14,11.0 14,6 C14,2 16,0 20,0 Z"/></svg><svg class="drip" viewBox="0 0 20 54" style="left:55%;height:0.486em;animation-delay:.5s" aria-hidden="true"><path d="M0,0 C4,0 6,2 6,6 C6,19.0 7,19.0 7,32 C7,38 2,40 2,46 A8,8 0 0 0 18,46 C18,40 13,38 13,32 C13,19.0 14,19.0 14,6 C14,2 16,0 20,0 Z"/></svg><svg class="drip" viewBox="0 0 20 30" style="left:82%;height:0.270em;animation-delay:.9s" aria-hidden="true"><path d="M0,0 C4,0 6,2 6,6 C6,7.0 7,7.0 7,8 C7,14 2,16 2,22 A8,8 0 0 0 18,22 C18,16 13,14 13,8 C13,7.0 14,7.0 14,6 C14,2 16,0 20,0 Z"/></svg></span>edea</h1>
   <div class="mast-meta">
     <div class="kicker">The Global AI Slop Index</div>
     <div class="dateline" id="dateline">Live count</div>
@@ -427,6 +443,7 @@ footer b { color: var(--ink); }
       <canvas id="card" width="1200" height="630" aria-label="Share card with the current top five"></canvas>
       <div class="share-actions">
         <p class="share-text" id="shareText"></p>
+        <button class="btn btn-solid" id="shareBtn" type="button" hidden>Share</button>
         <button class="btn btn-solid" id="dlBtn" type="button">Download image</button>
         <button class="btn" id="copyBtn" type="button">Copy headline</button>
         <div class="muted small" id="shareMsg" role="status"></div>
@@ -630,8 +647,8 @@ function render() {
   $("#raceList").innerHTML = cur.order.map((id, i) => {
     const isMine = id === mine, isLead = revealed && cur.n && i === 0 && cur.c[id] > 0;
     let label = "Vote";
-    if (isMine) label = "Your vote ✓";
-    else if (mine) label = cooling ? `Move in ${waitText(ME.nextSwitchAt - now)}` : "Move vote here";
+    if (isMine) label = `Your vote<svg class="check" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    else if (mine) label = cooling ? `Move in ${waitText(ME.nextSwitchAt - now)}` : "Move here";
     const disabled = !isMine && (writing || cooling);
     const stats = revealed
       ? `<div class="bar" role="img" aria-label="${pct(cur.s[id])} of votes"><span style="width:${(cur.s[id] / maxS * 100).toFixed(2)}%"></span></div>
@@ -718,7 +735,7 @@ function renderChart(pts, cur, revealed) {
 }
 
 /* ---------- share card ---------- */
-let fontsReady = false;
+let fontsReady = false, cardFile = null;
 function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
 function drawCard(now, cur) {
   const cv = $("#card"), c = cv.getContext("2d");
@@ -763,6 +780,8 @@ function drawCard(now, cur) {
   c.fillStyle = PAPER; c.font = `600 20px ${mono}`;
   c.fillText(cur.n ? `${cur.n.toLocaleString()} VOTES · ONE PERSON, ONE VOTE` : "ONE PERSON, ONE VOTE", 60, H - 21);
   c.textAlign = "right"; c.fillStyle = SLOP; c.fillText(location.host ? location.host.toUpperCase() : "CAST YOURS ON SLOPEDEA", W - 60, H - 21); c.textAlign = "left";
+  // Made ahead of time: iOS drops the share sheet if the tap waits on toBlob.
+  cv.toBlob((b) => { cardFile = b && new File([b], "slopedea-standings.png", { type: "image/png" }); }, "image/png");
 }
 
 /* ---------- actions ---------- */
@@ -839,6 +858,20 @@ $("#copyBtn").addEventListener("click", async () => {
   try { await navigator.clipboard.writeText($("#copyBtn").dataset.text || ""); $("#shareMsg").textContent = "Headline copied."; }
   catch { $("#shareMsg").textContent = "Copy didn't work here. Select the text above instead."; }
 });
+if (navigator.share) {
+  const sb = $("#shareBtn");
+  sb.hidden = false;
+  $("#dlBtn").classList.remove("btn-solid");
+  sb.addEventListener("click", async () => {
+    const text = $("#copyBtn").dataset.text || "";
+    const files = cardFile ? [cardFile] : [];
+    try {
+      await navigator.share(files.length && navigator.canShare && navigator.canShare({ files }) ? { files, text } : { text });
+    } catch (e) {
+      if (e.name !== "AbortError") $("#shareMsg").textContent = "Sharing didn't work here. Use Download or Copy instead.";
+    }
+  });
+}
 $("#dlBtn").addEventListener("click", () => {
   $("#card").toBlob((blob) => {
     if (!blob) { $("#shareMsg").textContent = "Couldn't create the image."; return; }

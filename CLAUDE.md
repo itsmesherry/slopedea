@@ -34,7 +34,7 @@ Local dev: `npm run db:init:local` once, then `npm run dev`. `.dev.vars` holds l
 
 ## Open tasks
 
-- [ ] Wordmark drips look blobby and unclear at small sizes; redesign them
+- [x] Wordmark drips redrawn as flat teardrops; dark mode letters get a hard shadow over the green
 - [ ] Footer: add a "Star on GitHub" link
 - [ ] Deploy: D1 create + db:init, Turnstile widget + keys, secrets (TURNSTILE_SECRET, SESSION_SECRET, ID_SALT), `npm run deploy`, custom domain, Email Routing for hello@slopedea.com
 - [ ] After launch: request-a-platform with +1s, Hall of Slop, weekly "state of slop" posts
