@@ -4,7 +4,7 @@ const HOUR = 3600e3;
 const DAY = 24 * HOUR;
 const HISTORY_DAYS = 15;
 const VOTER_COOKIE_DAYS = 365;
-const STANDINGS_TTL = 60; // seconds the standings response is cached at the edge
+const STANDINGS_TTL = 15; // seconds the standings response is cached at the edge (browsers never cache it)
 const enc = new TextEncoder();
 
 export default {
@@ -13,7 +13,7 @@ export default {
     try {
       if (path === "/api/standings" && req.method === "GET") return await standings(req, env, ctx);
       if (path === "/api/me" && req.method === "GET") return await me(req, env);
-      if (path === "/api/vote" && req.method === "POST") return await vote(req, env);
+      if (path === "/api/vote" && req.method === "POST") return await vote(req, env, ctx);
       if (path.startsWith("/api/")) return json({ error: "not_found" }, 404);
       return env.ASSETS.fetch(req);
     } catch (err) {
@@ -29,11 +29,21 @@ export default {
 
 /* ---------------- standings ---------------- */
 
+const standingsKey = (req) => new Request(new URL("/api/standings", req.url).toString(), { method: "GET" });
+
+// The edge copy keeps max-age so the Cache API honours the TTL; what the browser gets is no-store,
+// so a reload always asks the edge again.
+function noStore(res) {
+  const out = new Response(res.body, res);
+  out.headers.set("Cache-Control", "no-store");
+  return out;
+}
+
 async function standings(req, env, ctx) {
   const cache = caches.default;
-  const key = new Request(new URL("/api/standings", req.url).toString(), { method: "GET" });
+  const key = standingsKey(req);
   const hit = await cache.match(key);
-  if (hit) return hit;
+  if (hit) return noStore(hit);
 
   const [tallies, hist] = await env.DB.batch([
     env.DB.prepare("SELECT platform, count FROM tallies"),
@@ -60,7 +70,7 @@ async function standings(req, env, ctx) {
   };
   const res = json(body, 200, { "Cache-Control": `public, max-age=${STANDINGS_TTL}` });
   ctx.waitUntil(cache.put(key, res.clone()));
-  return res;
+  return noStore(res);
 }
 
 /* ---------------- me + vote ---------------- */
@@ -77,7 +87,7 @@ async function me(req, env) {
   );
 }
 
-async function vote(req, env) {
+async function vote(req, env, ctx) {
   if (!sameOrigin(req)) return json({ error: "bad_origin" }, 403);
 
   let body;
@@ -111,6 +121,7 @@ async function vote(req, env) {
       env.DB.prepare("UPDATE tallies SET count = MAX(count - 1, 0) WHERE platform = ?").bind(cur.platform),
       incTally(env, platform),
     ]);
+    ctx.waitUntil(caches.default.delete(standingsKey(req)));
     return json({ ok: true, vote: platform, previous: cur.platform, nextSwitchAt: now + cooldown });
   }
 
@@ -142,6 +153,8 @@ async function vote(req, env) {
       "INSERT INTO ip_daily (k, day, n) VALUES (?, ?, 1) ON CONFLICT(k) DO UPDATE SET n = n + 1",
     ).bind(ipKey, day),
   ]);
+  // ponytail: only clears this data centre's copy; other regions catch up within STANDINGS_TTL
+  ctx.waitUntil(caches.default.delete(standingsKey(req)));
   return json({ ok: true, vote: platform, previous: null, nextSwitchAt: now + cooldown }, 200, headers);
 }
 

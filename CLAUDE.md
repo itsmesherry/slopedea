@@ -21,7 +21,7 @@ Local dev: `npm run db:init:local` once, then `npm run dev`. `.dev.vars` holds l
 - **Results show from the first vote** (`REVEAL_AT` = 0), labelled "Early results" until 100 votes. Raising `REVEAL_AT` brings back the sealed state and progress bar.
 - **Never seed fake votes.** It's an anti-slop index; faking numbers would destroy it.
 - **No browser fingerprinting** for now (consent/privacy issues). If gaming becomes a problem, the next step is optional "verify with Google" plus a verified-only view.
-- **Cheap reads.** `/api/standings` is edge-cached 60s; running totals live in `tallies`; the hourly cron recounts from `votes` and appends a snapshot to a 15-day history (one JSON row in `meta`).
+- **Cheap reads.** `/api/standings` is edge-cached 15s, browsers get no-store, and a vote clears the edge copy; running totals live in `tallies`; the hourly cron recounts from `votes` and appends a snapshot to a 15-day history (one JSON row in `meta`).
 - **Disclaimer** in the footer: independent opinion poll, not affiliated with any platform.
 
 ## Design rules
