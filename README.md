@@ -1,10 +1,23 @@
-# Slopedea
+<p align="center">
+  <a href="https://slopedea.com"><img src="public/favicon.svg" width="72" height="72" alt="Slopedea logo"></a>
+</p>
 
-The Global AI Slop Index. Which platform is drowning in the most AI slop? One person, one vote.
+<h1 align="center">Slopedea</h1>
 
-**[slopedea.com](https://slopedea.com)**
+<p align="center">
+  The Global AI Slop Index.<br>
+  Which platform is drowning in the most AI slop? One person, one vote.
+</p>
 
-![Slopedea share card](public/og.png)
+<p align="center">
+  <a href="https://slopedea.com"><b>slopedea.com</b></a> ·
+  <a href="#how-it-works">How it works</a> ·
+  <a href="#run-your-own">Run your own</a>
+</p>
+
+<p align="center">
+  <img src="public/og.png" width="720" alt="Slopedea share card showing the current standings">
+</p>
 
 Runs entirely on Cloudflare's free plan: static site + one Worker + a D1 database.
 
