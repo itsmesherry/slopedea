@@ -13,7 +13,11 @@
   },
 
   // Serve on the apex domain; Cloudflare creates the DNS record and certificate.
-  "routes": [{ "pattern": "slopedea.com", "custom_domain": true }],
+  // www is redirected to the apex by a Cloudflare redirect rule.
+  "routes": [
+    { "pattern": "slopedea.com", "custom_domain": true },
+    { "pattern": "www.slopedea.com", "custom_domain": true }
+  ],
 
   "d1_databases": [
     {

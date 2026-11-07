@@ -61,7 +61,8 @@ npm run deploy
 
 - Attach a custom domain to the Worker. Edge caching doesn't work on workers.dev.
 - Never change `SESSION_SECRET` after launch, or every voter's cookie breaks and they can vote again.
-- Recommended: a WAF rate limit on `/api/vote` (10 per minute per IP) and Bot Fight Mode, both free.
+- Recommended: a WAF rate limit on `/api/vote` (the free plan allows 10-second windows; 5 requests per 10 seconds per IP works) and Bot Fight Mode, both free.
+- Optional: attach `www.` as a second custom domain and add Cloudflare's "Redirect from WWW to root" rule.
 - Using a different domain? Update the contact address in the footer of `public/index.html`.
 
 ## Local development

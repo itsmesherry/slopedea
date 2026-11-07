@@ -36,5 +36,5 @@ Local dev: `npm run db:init:local` once, then `npm run dev`. `.dev.vars` holds l
 
 - [x] Wordmark drips redrawn as flat teardrops; dark mode letters get a hard shadow over the green
 - [x] Footer: GitHub link (404s until the repo is public)
-- [x] Deployed to slopedea.com (D1, Turnstile, secrets, custom domain). Still to do: www, Email Routing for hello@, WAF rate limit, Bot Fight Mode
+- [x] Deployed to slopedea.com (D1, Turnstile, secrets, custom domain). www redirects to the apex; WAF limit on /api/vote is 5 per 10s per IP; Bot Fight Mode on. Still to do: Email Routing for hello@
 - [ ] After launch: request-a-platform with +1s, Hall of Slop, weekly "state of slop" posts
