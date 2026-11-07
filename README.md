@@ -1,8 +1,11 @@
-<p align="center">
-  <a href="https://slopedea.com"><img src="public/favicon.svg" width="72" height="72" alt="Slopedea logo"></a>
-</p>
-
-<h1 align="center">Slopedea</h1>
+<h1 align="center">
+  <a href="https://slopedea.com">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset=".github/wordmark-dark.png">
+      <img src=".github/wordmark-light.png" width="400" alt="Slopedea">
+    </picture>
+  </a>
+</h1>
 
 <p align="center">
   The Global AI Slop Index.<br>
@@ -16,8 +19,10 @@
 </p>
 
 <p align="center">
-  <img src="public/og.png" width="720" alt="Slopedea share card showing the current standings">
+  <a href="https://slopedea.com"><img src="public/og.png" width="720" alt="Slopedea share card: Which platform has the most AI slop? One person, one vote."></a>
 </p>
+
+**Slopedea is a live public poll** on which social platform is most flooded with AI slop: generated posts, fake photos, bot replies, faceless video channels. Anyone can vote in one tap, without an account, and move their vote when their feed changes their mind. Results stay hidden until 100 votes are in, then update live with a two-week history.
 
 Runs entirely on Cloudflare's free plan: static site + one Worker + a D1 database.
 

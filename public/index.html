@@ -451,7 +451,7 @@ footer a { color: var(--ink); }
     <p><b>How the numbers work.</b> A platform's score is its share of all current votes. The arrows compare it with the count 24 hours ago. A snapshot is saved every hour.</p>
     <p><b>What we mean by slop.</b> Low-effort AI content made for reach, like generated posts, fake photos, bot replies and faceless video channels. This poll counts what people see in their feeds. It doesn't measure the platforms directly.</p>
   </footer>
-  <p class="contact">Ideas, press, or a platform we missed? Write to <a href="mailto:hello@slopedea.com">hello@slopedea.com</a>. A real person reads it. The code is open on <a href="https://github.com/itsmesherry/slopedea">GitHub</a>.<br>Slopedea isn't affiliated with any platform listed. Platform names are trademarks of their owners.</p>
+  <p class="contact">Ideas, press, or a platform we missed? Write to <a href="mailto:hello@slopedea.com">hello@slopedea.com</a>. A real person reads it.<br>Open source. <a href="https://github.com/itsmesherry/slopedea">Star it on GitHub ★</a><br>Slopedea isn't affiliated with any platform listed. Platform names are trademarks of their owners.</p>
 </main>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -731,7 +731,6 @@ function renderChart(pts, cur, revealed) {
 
 /* ---------- share card ---------- */
 let fontsReady = false, cardFile = null;
-function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
 function drawCard(now, cur) {
   const cv = $("#card"), c = cv.getContext("2d");
   const W = 1200, H = 630, INK = "#111318", MUTED = "#596070", SLOP = "#D4E21C", PAPER = "#E8EAEE", RULE = "#C9CED6";
@@ -740,24 +739,25 @@ function drawCard(now, cur) {
   c.fillStyle = PAPER; c.fillRect(0, 0, W, H);
   c.fillStyle = INK; c.fillRect(0, 0, W, 14);
   c.font = `850 60px ${disp}`;
-  const slopW = c.measureText("Slop").width;
-  c.fillStyle = SLOP; rr(c, 58, 72, slopW + 14, 44, 18); c.fill();
-  c.fillRect(58 + slopW * 0.55, 110, 7, 24); c.beginPath(); c.arc(61.5 + slopW * 0.55, 134, 6, 0, 7); c.fill();
+  // Same liquid shape as the wordmark: the .goo path is in 0.01em units, placed like the CSS does.
+  const goo = $(".goo path");
+  if (goo) { c.save(); c.translate(62 - 4.8, 112 - 37.2); c.scale(0.6, 0.6); c.fillStyle = SLOP; c.fill(new Path2D(goo.getAttribute("d"))); c.restore(); }
   c.fillStyle = INK; c.fillText("Slopedea", 62, 112);
-  c.textAlign = "right"; c.font = `500 20px ${mono}`; c.fillStyle = MUTED;
-  c.fillText("THE GLOBAL AI SLOP INDEX", W - 60, 86);
-  c.fillText(fmtLong(now).toUpperCase(), W - 60, 114);
+  c.textAlign = "right"; c.fillStyle = INK; c.font = `italic 500 28px ${disp}`;
+  c.fillText("The Global AI Slop Index", W - 60, 88);
+  c.font = `500 19px ${mono}`; c.fillStyle = MUTED;
+  c.fillText(fmtLong(now), W - 60, 118);
   c.textAlign = "left";
   c.fillStyle = INK; c.fillRect(60, 150, W - 120, 3);
   if (!cur.n) {
-    c.font = `500 20px ${mono}`; c.fillStyle = MUTED; c.fillText("THE QUESTION", 60, 200);
+    c.font = `600 24px ${body}`; c.fillStyle = MUTED; c.fillText("The question", 60, 204);
     c.fillStyle = INK; c.font = `820 92px ${disp}`;
     c.fillText("Which platform has", 54, 300);
     c.fillText("the most AI slop?", 54, 395);
     c.font = `500 30px ${body}`; c.fillStyle = MUTED; c.fillText("One person, one vote. Results go public soon.", 60, 470);
   } else {
     const lead = cur.order[0];
-    c.font = `500 20px ${mono}`; c.fillStyle = MUTED; c.fillText("SLOPPIEST PLATFORM RIGHT NOW", 60, 200);
+    c.font = `600 24px ${body}`; c.fillStyle = MUTED; c.fillText("Sloppiest platform right now", 60, 204);
     c.fillStyle = INK; c.font = `820 116px ${disp}`; c.fillText(P[lead].name, 54, 300);
     c.textAlign = "right"; c.font = `600 76px ${mono}`; c.fillText(pct(cur.s[lead]), W - 60, 300); c.textAlign = "left";
     const maxS = Math.max(1, cur.s[lead]);
@@ -772,9 +772,9 @@ function drawCard(now, cur) {
     });
   }
   c.fillStyle = INK; c.fillRect(0, H - 56, W, 56);
-  c.fillStyle = PAPER; c.font = `600 20px ${mono}`;
-  c.fillText(cur.n ? `${cur.n.toLocaleString()} VOTES · ONE PERSON, ONE VOTE` : "ONE PERSON, ONE VOTE", 60, H - 21);
-  c.textAlign = "right"; c.fillStyle = SLOP; c.fillText(location.host ? location.host.toUpperCase() : "CAST YOURS ON SLOPEDEA", W - 60, H - 21); c.textAlign = "left";
+  c.fillStyle = PAPER; c.font = `600 21px ${body}`;
+  c.fillText(cur.n ? `${cur.n.toLocaleString()} votes · One person, one vote` : "One person, one vote", 60, H - 21);
+  c.textAlign = "right"; c.fillStyle = SLOP; c.font = `600 21px ${mono}`; c.fillText("slopedea.com", W - 60, H - 21); c.textAlign = "left";
   // Made ahead of time: iOS drops the share sheet if the tap waits on toBlob.
   cv.toBlob((b) => { cardFile = b && new File([b], "slopedea-standings.png", { type: "image/png" }); }, "image/png");
 }
@@ -813,11 +813,17 @@ function botToken() {
 
 async function castVote(pid) {
   if (writing || ME.vote === pid) return;
-  writing = true; render();
+  // Optimistic: show the vote at once, then confirm in the background (the bot check
+  // plus the request take 1-2s). If the server says no, put everything back.
+  const prev = ME.vote, before = { S: S && structuredClone(S), ME: { ...ME } };
+  if (S) applyLocal(S, { prev, to: pid, t: Date.now() });
+  ME.vote = pid; writing = true; render();
+  toast(prev ? `Vote moved from ${P[prev].name} to ${P[pid].name}.` : `Vote cast for ${P[pid].name}. You can move it anytime after an hour.`);
+  const undo = (msg) => { S = before.S; ME = before.ME; toast(msg); };
   try {
     let token = null;
     try { token = await botToken(); }
-    catch { toast("The bot check didn't load. Refresh the page and try again."); return; }
+    catch { undo("The bot check didn't load. Refresh the page and try again."); return; }
     const r = await fetch("/api/vote", {
       method: "POST",
       credentials: "same-origin",
@@ -826,22 +832,19 @@ async function castVote(pid) {
     });
     const data = await r.json().catch(() => ({}));
     if (r.status === 429 && data.error === "cooldown") {
+      undo(`You can move your vote again in ${waitText(data.nextSwitchAt - Date.now())}.`);
       ME.nextSwitchAt = data.nextSwitchAt; ME.vote = data.vote || ME.vote;
-      toast(`You can move your vote again in ${waitText(data.nextSwitchAt - Date.now())}.`);
     } else if (r.status === 429 && data.error === "network_cap") {
-      toast("Your network has added a lot of votes today. Try again tomorrow.");
+      undo("Your network has added a lot of votes today. Try again tomorrow.");
     } else if (r.status === 403 && data.error === "bot_check_failed") {
-      toast("We couldn't confirm you're human. Refresh and try again.");
+      undo("We couldn't confirm you're human. Refresh and try again.");
     } else if (!r.ok) {
-      toast("Couldn't save your vote. Try again in a moment.");
+      undo("Couldn't save your vote. Try again in a moment.");
     } else {
-      const prev = data.previous;
-      if (S && prev !== pid) applyLocal(S, { prev, to: pid, t: Date.now() });
-      ME.vote = pid; ME.nextSwitchAt = data.nextSwitchAt;
-      toast(prev && prev !== pid ? `Vote moved from ${P[prev].name} to ${P[pid].name}.` : `Vote cast for ${P[pid].name}. You can move it anytime after an hour.`);
+      ME.nextSwitchAt = data.nextSwitchAt;
     }
   } catch {
-    toast("You seem to be offline. Your vote wasn't saved.");
+    undo("You seem to be offline. Your vote wasn't saved.");
   } finally { writing = false; render(); }
 }
 
