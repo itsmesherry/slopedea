@@ -7,7 +7,8 @@
 <meta name="description" content="The Global AI Slop Index. Which platform is drowning in the most AI slop? One person, one vote.">
 <meta property="og:title" content="Slopedea: The Global AI Slop Index">
 <meta property="og:description" content="Which platform is drowning in the most AI slop? One person, one vote.">
-<meta property="og:image" content="/og.png">
+<meta property="og:image" content="https://slopedea.com/og.png">
+<meta property="og:url" content="https://slopedea.com/">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -339,6 +340,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 footer { padding: 28px 0 24px; display: grid; gap: 10px; max-width: 68ch; font-size: 14px; color: var(--muted); }
 footer p { margin: 0; }
 footer b { color: var(--ink); }
+footer a { color: var(--ink); }
 
 .toast {
   position: fixed;
@@ -445,11 +447,11 @@ footer b { color: var(--ink); }
   </section>
 
   <footer>
-    <p><b>How voting works.</b> No account. Your vote is tied to a cookie on this device, a bot check runs on every vote, and each network can only add a limited number of new voters a day. We don't collect names or emails. IP addresses are kept only as a scrambled hash, for one day. You can move your vote once an hour.</p>
+    <p><b>How voting works.</b> No account. Your vote is tied to a cookie on this device, a bot check runs on every vote, and each network can only add a limited number of new voters a day. We don't collect names or emails. IP addresses are kept only as a scrambled hash, for one day. The bot check is Cloudflare Turnstile, covered by its <a href="https://www.cloudflare.com/turnstile-privacy-policy/">privacy addendum</a>. You can move your vote once an hour.</p>
     <p><b>How the numbers work.</b> A platform's score is its share of all current votes. The arrows compare it with the count 24 hours ago. A snapshot is saved every hour.</p>
     <p><b>What we mean by slop.</b> Low-effort AI content made for reach, like generated posts, fake photos, bot replies and faceless video channels. This poll counts what people see in their feeds. It doesn't measure the platforms directly.</p>
   </footer>
-  <p class="contact">Ideas, press, or a platform we missed? Write to <a href="mailto:hello@slopedea.com">hello@slopedea.com</a>. A real person reads it.<br>Slopedea isn't affiliated with any platform listed. Platform names are trademarks of their owners.</p>
+  <p class="contact">Ideas, press, or a platform we missed? Write to <a href="mailto:hello@slopedea.com">hello@slopedea.com</a>. A real person reads it. The code is open on <a href="https://github.com/itsmesherry/slopedea">GitHub</a>.<br>Slopedea isn't affiliated with any platform listed. Platform names are trademarks of their owners.</p>
 </main>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>

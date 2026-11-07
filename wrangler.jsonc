@@ -12,11 +12,14 @@
     "run_worker_first": ["/api/*"]
   },
 
+  // Serve on the apex domain; Cloudflare creates the DNS record and certificate.
+  "routes": [{ "pattern": "slopedea.com", "custom_domain": true }],
+
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "slopedea",
-      "database_id": "REPLACE_WITH_YOUR_D1_ID"
+      "database_id": "52bc5a18-e120-417c-a6da-88c5fd7428a5"
     }
   ],
 
@@ -25,7 +28,7 @@
 
   "vars": {
     // Public Turnstile site key (Cloudflare dashboard → Turnstile). Leave empty to skip the bot check.
-    "TURNSTILE_SITE_KEY": "REPLACE_WITH_YOUR_TURNSTILE_SITE_KEY",
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAF3lDY8nsh4dOaJC",
     // Percentages stay hidden until this many votes are in. Set to "0" to always show.
     "REVEAL_AT": "100",
     // Minutes a person must wait before moving their vote again.

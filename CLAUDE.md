@@ -35,6 +35,6 @@ Local dev: `npm run db:init:local` once, then `npm run dev`. `.dev.vars` holds l
 ## Open tasks
 
 - [x] Wordmark drips redrawn as flat teardrops; dark mode letters get a hard shadow over the green
-- [ ] Footer: add a "Star on GitHub" link
-- [ ] Deploy: D1 create + db:init, Turnstile widget + keys, secrets (TURNSTILE_SECRET, SESSION_SECRET, ID_SALT), `npm run deploy`, custom domain, Email Routing for hello@slopedea.com
+- [x] Footer: GitHub link (404s until the repo is public)
+- [x] Deployed to slopedea.com (D1, Turnstile, secrets, custom domain). Still to do: www, Email Routing for hello@, WAF rate limit, Bot Fight Mode
 - [ ] After launch: request-a-platform with +1s, Hall of Slop, weekly "state of slop" posts
