@@ -378,7 +378,9 @@ footer a { color: var(--ink); }
 .unlock-bar { height: 12px; border-radius: 6px; background: color-mix(in srgb, var(--rule) 60%, transparent); overflow: hidden; }
 .unlock-bar span { display: block; height: 100%; background: var(--slop); border-radius: 6px; transition: width 600ms ease; }
 .bar.sealed span { background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--rule) 80%, transparent) 0 6px, transparent 6px 12px); }
-.contact { padding: 0 0 56px; font-size: 14px; color: var(--muted); }
+.contact { padding: 0 0 20px; margin: 0; font-size: 14px; color: var(--muted); }
+.oss { margin: 0; padding: 20px 0 56px; border-top: 1px solid var(--rule); font-size: 14px; color: var(--muted); }
+.oss a { color: var(--ink); font-weight: 700; }
 .contact a { color: var(--ink); font-weight: 700; }
 
 </style>
@@ -451,7 +453,8 @@ footer a { color: var(--ink); }
     <p><b>How the numbers work.</b> A platform's score is its share of all current votes. The arrows compare it with the count 24 hours ago. A snapshot is saved every hour.</p>
     <p><b>What we mean by slop.</b> Low-effort AI content made for reach, like generated posts, fake photos, bot replies and faceless video channels. This poll counts what people see in their feeds. It doesn't measure the platforms directly.</p>
   </footer>
-  <p class="contact">Ideas, press, or a platform we missed? Write to <a href="mailto:hello@slopedea.com">hello@slopedea.com</a>. A real person reads it.<br>Open source. <a href="https://github.com/itsmesherry/slopedea">Star it on GitHub ★</a><br>Slopedea isn't affiliated with any platform listed. Platform names are trademarks of their owners.</p>
+  <p class="contact">Ideas, press, or a platform we missed? Write to <a href="mailto:hello@slopedea.com">hello@slopedea.com</a>. A real person reads it.<br>Slopedea isn't affiliated with any platform listed. Platform names are trademarks of their owners.</p>
+  <p class="oss">Open source · <a href="https://github.com/itsmesherry/slopedea">★ Star on GitHub</a></p>
 </main>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
