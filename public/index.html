@@ -122,7 +122,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--on-slop); }
 .ticker-viewport { overflow: hidden; flex: 1; }
 .ticker-track { display: inline-flex; gap: 40px; padding-left: 24px; animation: tick 60s linear infinite; }
-.ticker-track span b { color: var(--slop); font-weight: 600; }
+.ticker-track span b { background: var(--slop); color: var(--on-slop); font-weight: 600; padding: 1px 5px; border-radius: 2px; margin-right: 4px; }
 @keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
 /* Masthead */
@@ -151,29 +151,17 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   display: inline-block;
   z-index: 0;
 }
-.wordmark .blob::before {
-  content: "";
+.goo {
   position: absolute;
-  left: -0.08em; right: -0.04em;
-  top: 0.38em; bottom: -0.02em;
-  background: var(--slop);
-  border-radius: 0.3em 0.24em 0.34em 0.2em;
+  left: -0.08em; top: 0.36em;
+  width: 1.96em; height: 1.16em;
+  fill: var(--slop);
+  overflow: visible;
   z-index: -1;
 }
 /* Dark mode only: a hard shadow keeps the white letters from melting into the green. */
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .wordmark .blob { text-shadow: 0.035em 0.035em 0 var(--paper), -0.015em 0.015em 0 var(--paper); } }
 :root[data-theme="dark"] .wordmark .blob { text-shadow: 0.035em 0.035em 0 var(--paper), -0.015em 0.015em 0 var(--paper); }
-.drip {
-  position: absolute;
-  top: calc(100% - 0.07em);
-  width: auto;
-  overflow: visible;
-  fill: var(--slop);
-  z-index: -1;
-  transform-origin: top;
-  animation: drip 2.4s cubic-bezier(.5,0,.3,1) both;
-}
-@keyframes drip { from { transform: scaleY(0.15); } to { transform: scaleY(1); } }
 .mast-meta { text-align: right; display: grid; gap: 4px; padding-bottom: 6px; }
 .kicker {
   font-family: var(--font-display);
@@ -212,7 +200,8 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   .hero-name { font-size: 48px; }
   .hero-stats { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; padding-bottom: 0; }
   .hero-share { font-size: 30px; }
-  .hero-sub { justify-content: flex-start; }
+  .hero-sub { justify-content: flex-start; align-items: baseline; font-family: var(--font-mono); font-size: 13px; }
+  .counter { flex-basis: 100%; }
   .counter b { font-size: 16px; }
   .ask { font-size: 15px; margin: 0; }
   .race { padding: 20px 0; }
@@ -257,7 +246,9 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   padding: 12px 0;
   border-bottom: 1px solid var(--rule);
 }
-.row.mine { background: color-mix(in srgb, var(--slop) 18%, transparent); margin: 0 -10px; padding-left: 10px; padding-right: 10px; border-radius: 4px; }
+.row { position: relative; }
+/* Your pick: a highlighter mark in the margin plus the green button. No row fill, so columns never shift. */
+.row.mine::before { content: ""; position: absolute; left: -10px; top: 10px; bottom: 10px; width: 4px; border-radius: 2px; background: var(--slop); }
 .rank { grid-area: rank; font-family: var(--font-mono); font-size: 14px; color: var(--muted); padding-left: 4px; }
 .row.leader .rank { color: var(--ink); font-weight: 600; }
 .who { grid-area: who; min-width: 0; }
@@ -286,6 +277,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   }
   .who .name { font-size: 17px; }
   .vote { width: 100%; }
+  .row .tag { display: none; }
 }
 
 /* Buttons */
@@ -367,7 +359,7 @@ footer b { color: var(--ink); }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 @media (prefers-reduced-motion: reduce) {
-  .ticker-track, .drip { animation: none; }
+  .ticker-track { animation: none; }
   .bar span, .toast { transition: none; }
 }
 
@@ -386,6 +378,7 @@ footer b { color: var(--ink); }
 .bar.sealed span { background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--rule) 80%, transparent) 0 6px, transparent 6px 12px); }
 .contact { padding: 0 0 56px; font-size: 14px; color: var(--muted); }
 .contact a { color: var(--ink); font-weight: 700; }
+
 </style>
 </head>
 <body>
@@ -395,7 +388,7 @@ footer b { color: var(--ink); }
 </div>
 
 <header class="mast wrap">
-  <h1 class="wordmark" aria-label="Slopedea"><span class="blob">Slop<svg class="drip" viewBox="0 0 20 38" style="left:16%;height:0.342em;animation-delay:.2s" aria-hidden="true"><path d="M0,0 C4,0 6,2 6,6 C6,11.0 7,11.0 7,16 C7,22 2,24 2,30 A8,8 0 0 0 18,30 C18,24 13,22 13,16 C13,11.0 14,11.0 14,6 C14,2 16,0 20,0 Z"/></svg><svg class="drip" viewBox="0 0 20 54" style="left:55%;height:0.486em;animation-delay:.5s" aria-hidden="true"><path d="M0,0 C4,0 6,2 6,6 C6,19.0 7,19.0 7,32 C7,38 2,40 2,46 A8,8 0 0 0 18,46 C18,40 13,38 13,32 C13,19.0 14,19.0 14,6 C14,2 16,0 20,0 Z"/></svg><svg class="drip" viewBox="0 0 20 30" style="left:82%;height:0.270em;animation-delay:.9s" aria-hidden="true"><path d="M0,0 C4,0 6,2 6,6 C6,7.0 7,7.0 7,8 C7,14 2,16 2,22 A8,8 0 0 0 18,22 C18,16 13,14 13,8 C13,7.0 14,7.0 14,6 C14,2 16,0 20,0 Z"/></svg></span>edea</h1>
+  <h1 class="wordmark" aria-label="Slopedea"><span class="blob">Slop<svg class="goo" viewBox="0 0 196 116" aria-hidden="true"><path d="M14,4 C60,-2 120,6 182,1 C192,0 196,10 194,22 C193,36 196,46 188,53 C182,58 176,61 168,59 C162,59 160,62 160,68 L160,68 C160,72 162,74 162,78 A6,6 0 0 1 150,78 C150,74 152,72 152,68 L152,68 C152,62 150,59 144,59 C138,66 126,68 119,62 C113,62 111,65 111,71 L111,89 C111,93 114,95 114,100 A7,7 0 0 1 100,100 C100,95 103,93 103,89 L103,71 C103,65 101,62 95,62 C86,70 64,69 49,61 C43,61 41,64 41,70 L41,74 C41,78 43,80 43,84 A6,6 0 0 1 31,84 C31,80 33,78 33,74 L33,70 C33,64 31,61 25,61 C18,64 6,58 2,44 C0,30 2,16 4,10 C6,5 10,4 14,4 Z"><animate attributeName="d" dur="7s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" values="M14,4 C60,-2 120,6 182,1 C192,0 196,10 194,22 C193,36 196,46 188,53 C182,58 176,61 168,59 C162,59 160,62 160,68 L160,68 C160,72 162,74 162,78 A6,6 0 0 1 150,78 C150,74 152,72 152,68 L152,68 C152,62 150,59 144,59 C138,66 126,68 119,62 C113,62 111,65 111,71 L111,89 C111,93 114,95 114,100 A7,7 0 0 1 100,100 C100,95 103,93 103,89 L103,71 C103,65 101,62 95,62 C86,70 64,69 49,61 C43,61 41,64 41,70 L41,74 C41,78 43,80 43,84 A6,6 0 0 1 31,84 C31,80 33,78 33,74 L33,70 C33,64 31,61 25,61 C18,64 6,58 2,44 C0,30 2,16 4,10 C6,5 10,4 14,4 Z;M14,5.5 C60,-3.5 120,7.5 182,-0.5 C192,0 196,10 194,22 C193,36 196,46 188,53 C182,58 176,64 168,59 C162,59 160,62 160,68 L160,71 C160,75 162,77 162,81 A6,6 0 0 1 150,81 C150,77 152,75 152,71 L152,68 C152,62 150,59 144,59 C138,69 126,65 119,62 C113,62 111,65 111,71 L111,97 C111,101 114,103 114,108 A7,7 0 0 1 100,108 C100,103 103,101 103,97 L103,71 C103,65 101,62 95,62 C86,67 64,72 49,61 C43,61 41,64 41,70 L41,79 C41,83 43,85 43,89 A6,6 0 0 1 31,89 C31,85 33,83 33,79 L33,70 C33,64 31,61 25,61 C18,67 6,58 2,44 C0,30 2,16 4,10 C6,6.5 10,5.5 14,5.5 Z;M14,4 C60,-2 120,6 182,1 C192,0 196,10 194,22 C193,36 196,46 188,53 C182,58 176,61 168,59 C162,59 160,62 160,68 L160,68 C160,72 162,74 162,78 A6,6 0 0 1 150,78 C150,74 152,72 152,68 L152,68 C152,62 150,59 144,59 C138,66 126,68 119,62 C113,62 111,65 111,71 L111,89 C111,93 114,95 114,100 A7,7 0 0 1 100,100 C100,95 103,93 103,89 L103,71 C103,65 101,62 95,62 C86,70 64,69 49,61 C43,61 41,64 41,70 L41,74 C41,78 43,80 43,84 A6,6 0 0 1 31,84 C31,80 33,78 33,74 L33,70 C33,64 31,61 25,61 C18,64 6,58 2,44 C0,30 2,16 4,10 C6,5 10,4 14,4 Z"/></path></svg></span>edea</h1>
   <div class="mast-meta">
     <div class="kicker">The Global AI Slop Index</div>
     <div class="dateline" id="dateline">Live count</div>
@@ -884,6 +877,8 @@ $("#dlBtn").addEventListener("click", () => {
 });
 
 /* ---------- boot ---------- */
+// SMIL ignores the CSS reduced-motion rule, so stop the ooze here.
+if (matchMedia("(prefers-reduced-motion: reduce)").matches) document.querySelectorAll(".goo").forEach(g => g.pauseAnimations());
 render();
 Promise.all([
   document.fonts.load('820 100px "Fraunces"'),
