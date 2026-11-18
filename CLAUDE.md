@@ -12,6 +12,8 @@ Cloudflare free plan only. The only money spent is the domain.
 - `schema.sql`: D1 tables (`votes`, `tallies`, `meta`, `ip_daily`)
 - `wrangler.jsonc`: config. Static assets skip the Worker; only `/api/*` runs it
 
+Deploys: every push to `main` auto-deploys via Cloudflare Workers Builds (`npx wrangler deploy`). Preview branch builds are off because they would share the production D1. Schema changes still need a manual D1 migration.
+
 Local dev: `npm run db:init:local` once, then `npm run dev`. `.dev.vars` holds local test secrets (git-ignored). Trigger the cron locally with `curl "http://localhost:8787/cdn-cgi/local/scheduled"`. README.md has full deploy steps.
 
 ## Product decisions (already made, don't undo without asking)
