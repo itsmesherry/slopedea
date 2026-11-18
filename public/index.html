@@ -606,7 +606,7 @@ function render() {
   if (S) {
     const prevN = +(cEl.dataset.n || 0);
     cEl.innerHTML = early
-      ? `Vote count shows at ${EARLY_UNTIL}`
+      ? ""
       : `<b>${S.total.toLocaleString()}</b>${S.total === 1 ? "vote" : "votes"} cast`;
     if (prevN && S.total > prevN) { cEl.classList.remove("bump"); void cEl.offsetWidth; cEl.classList.add("bump"); }
     cEl.dataset.n = S.total;
@@ -648,7 +648,7 @@ function render() {
   $("#notes").innerHTML = notes.map(t => `<div class="note">${esc(t)}</div>`).join("");
 
   // race
-  $("#voterCount").textContent = early ? `Count shows at ${EARLY_UNTIL} votes` : S ? `${S.total.toLocaleString()} ${S.total === 1 ? "vote" : "votes"} counted` : "";
+  $("#voterCount").textContent = early ? "" : S ? `${S.total.toLocaleString()} ${S.total === 1 ? "vote" : "votes"} counted` : "";
   const maxS = Math.max(1, ...PLATFORMS.map(p => cur.s[p.id]));
   const cooling = mine && ME.nextSwitchAt > now;
   $("#raceList").innerHTML = cur.order.map((id, i) => {
